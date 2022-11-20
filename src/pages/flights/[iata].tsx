@@ -2,7 +2,7 @@ import { GetStaticPaths, GetStaticProps } from "next/types";
 import { Flex, VStack, Button, Text, Icon, HStack, Stat, StatLabel, StatNumber, StatHelpText, ModalOverlay, ModalFooter, Modal, ModalBody, ModalContent, ModalHeader, ModalCloseButton, useDisclosure, Heading, Divider, Input } from "@chakra-ui/react"
 import { BsInfoCircle } from "react-icons/bs"
 import cities from "../../data/cities.json";
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { FlightOffer, FlightSearch } from "../../contracts/FlightSearch";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -12,9 +12,8 @@ import Menu from "../../components/menu";
 import { TravelItenary } from "../../contracts/TravelItinerary";
 
 interface FlightsProps {
-    flights: FlightSearch["data"]
 }
-const Flights: React.FC<FlightsProps> = ({ flights }: FlightsProps) => {
+const Flights: React.FC<FlightsProps> = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [flightOffer, setFlightOffer] = useState<FlightOffer | null>(null)
@@ -22,6 +21,9 @@ const Flights: React.FC<FlightsProps> = ({ flights }: FlightsProps) => {
     const [bookings, setBookings] = useLocalStorage("bookings", [])
     const [travels, setTravels] = useLocalStorage("travels", [])
     const toast = useToast()
+
+    const [flights, setFlights] = useState<FlightSearch["data"]>([])
+    const [loading, setLoading] = useState<boolean>(false)
 
 
     const router = useRouter()
@@ -68,6 +70,20 @@ const Flights: React.FC<FlightsProps> = ({ flights }: FlightsProps) => {
     }
 
 
+    useEffect(() => {
+        if (!flights?.length && !loading && iata) {
+            setLoading(true)
+            const load = async () => {
+                const flights = await fetch(`http://localhost:3000/api/flights?iataCode=${iata}&date=2023-01-01`).then(res => {
+                    return res.json()
+                })
+                setFlights(flights.data)
+                setLoading(false)
+            }
+            load()
+        }
+    }, [iata, flights, loading])
+
 
 
     return (<>
@@ -82,7 +98,8 @@ const Flights: React.FC<FlightsProps> = ({ flights }: FlightsProps) => {
             overflowY="auto"
         >
             <VStack gap={4}>
-                {flights.map(f => (
+                {loading && <Button isLoading colorScheme='teal' variant='solid' />}
+                {flights?.map(f => (
                     <Flex
                         key={f.id}
                         w="100%"
@@ -170,31 +187,5 @@ const Flights: React.FC<FlightsProps> = ({ flights }: FlightsProps) => {
 }
 
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-    // mocked date
-    const flights = (await fetch(`http://localhost:3000/api/flights?iataCode=${params?.iata}&date=2023-01-01`).then(res => {
-        return res.json()
-    })).data;
-    if (!flights) {
-        return {
-            notFound: true,
-        };
-    }
-    return {
-        props: {
-            flights,
-        },
-        revalidate: true,
-    };
-};
-
-
-export const getStaticPaths: GetStaticPaths = async () => {
-
-    return {
-        fallback: false,
-        paths: cities["place-details"].map(place => `/flights/${place.iataCode}`),
-    };
-};
 
 export default Flights
