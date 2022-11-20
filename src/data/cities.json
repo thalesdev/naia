@@ -1,0 +1,48 @@
+{
+    "place-details": [
+        {
+            "iataCode": "MEL",
+            "images": [
+                "https://www.melbourne.vic.gov.au/SiteCollectionImages/budget-2022-23-400.jpg"
+            ],
+            "name": "Melbourne",
+            "location": "Melbourne, Australia",
+            "description": "Melbourne is the capital city of Victoria, and Australia's second-largest city. Focused around a central city, Greater Melbourne's area of approximately 9900 km² of suburbs spread more than 40 km to the south, 30 km to the east, 20 km to the north and sprawl across vast, flat basalt plains to the west.",
+            "tags": [
+                "food",
+                "nature"
+            ]
+        },
+        {
+            "iataCode": "SYD",
+            "images": [
+                "https://www.sydney.com/sites/sydney/files/styles/portrait_768x1382/public/2022-11/181173%20-%20Sydney%27s%20Open%20for%20Lunch%20-%20George%20Street%20-%20Sydney%20CBD%20-%20DNSW%20mobile%20opt%202.webp?h=de33619a&itok=ACfgew59"
+            ],
+            "name": "Sydney",
+            "description": "Sydney is the largest and most populous city in Australia and the state capital of New South Wales. Sydney is located on Australia's south-east coast of the Tasman Sea.",
+            "location": "Sydney, Australia",
+            "tags": [
+                "beach",
+                "city",
+                "culture",
+                "food",
+                "nature",
+                "nightlife",
+                "shopping"
+            ]
+        },
+        {
+            "iataCode": "OSA",
+            "images": [
+                "https://res-4.cloudinary.com/jnto/image/upload/w_750,h_1100,c_fill,f_auto,fl_lossy,q_auto/v1516490612/osaka/Osaka829_1"
+            ],
+            "name": "Osaka",
+            "location": "Osaka, Japan",
+            "description": "Osaka is a charming, relaxed city best known for its food, fun and nightlife—with some history and culture peeking through. Osaka is only a short shinkansen ride from Tokyo, but has a very different personality to Japan's capital city.",
+            "tags": [
+                "food",
+                "culture"
+            ]
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Flex, Text, Button, SimpleGrid } from "@chakra-ui/react";
 import { format } from 'date-fns'
 import { MessageCard, MessageCardProps } from "./MessageCard";
@@ -12,12 +12,12 @@ export interface MessageCardsInfo {
     onMore?: () => void;
 }
 
-interface MessageProps {
+export interface MessageProps {
     message?: string;
     isOwn?: boolean;
     replyOptions?: Record<string, string>;
     onReply?: (option: string) => void;
-    cards?: MessageCardsInfo;
+    cards?: MessageCardsInfo | (() => Promise<MessageCardsInfo>);
     time?: Date;
 }
 
@@ -25,30 +25,25 @@ export const Message: React.FC<MessageProps> = ({ message, isOwn, replyOptions, 
 
     const [replied, setReplied] = React.useState<String | null>(null);
 
+    const [cardsFetched, setCardsFetched] = useState<MessageCardsInfo | null>(null)
+
     const handleReply = (option: string) => {
         setReplied(option);
         onReply?.(option);
     }
 
+    useEffect(() => {
+        if (cards instanceof Function) {
+            cards().then(setCardsFetched)
+        } else {
+            setCardsFetched(cards || null)
+        }
+    }, [])
+
 
     const messageScaped = message?.replaceAll(/\*(.*?)\*/g, (_, p1) => {
         return `<strong>${p1}</strong>`
     })
-
-    // const cardsGrouped = cards?.cards.reduce((acc, curr) => {
-    //     if (acc.length > 0) {
-    //         if (acc[acc.length - 1].length < 2) {
-    //             acc[acc.length - 1].push(curr);
-    //             return acc;
-    //         } else {
-    //             acc.push([curr]);
-    //             return acc;
-    //         }
-    //     }
-    //     return [...acc, [curr]]
-    // }, [] as unknown as MessageCardProps[][])
-
-    // console.log(cardsGrouped)
 
     return (
         <Flex w="100%" direction="column" align={isOwn ? "flex-end" : "flex-start"}>
@@ -97,9 +92,9 @@ export const Message: React.FC<MessageProps> = ({ message, isOwn, replyOptions, 
                         ))}
                     </SimpleGrid>
                 )}
-                {cards && (
+                {cardsFetched && (
                     <ChakraCarousel gap={80}>
-                        {cards.cards?.map((card, index) => (
+                        {cardsFetched.cards.map((card, index) => (
                             <MessageCard key={index} {...card} />
                         ))}
                     </ChakraCarousel>
@@ -108,3 +103,4 @@ export const Message: React.FC<MessageProps> = ({ message, isOwn, replyOptions, 
         </Flex>
     )
 }
+

@@ -1,13 +1,21 @@
 import { Flex, Icon, IconButton, Input } from "@chakra-ui/react";
 import { BsPlusSquare } from "react-icons/bs"
-import React from "react"
+import { HiOutlinePaperAirplane } from "react-icons/hi"
+import React, { useState } from "react"
 
 interface ReplyBoxProps {
     enabled?: boolean;
-    onReply?: (option: string) => void;
+    onReply?: (data: string) => void;
 }
 
 export const ReplyBox: React.FC<ReplyBoxProps> = ({ enabled, onReply }) => {
+    const [text, setText] = useState<string>("")
+
+    function handleReply() {
+        onReply?.(text);
+        setText("")
+    }
+
     return (
         <Flex
             w="100%"
@@ -21,9 +29,19 @@ export const ReplyBox: React.FC<ReplyBoxProps> = ({ enabled, onReply }) => {
                 aria-label='Add attachment'
                 variant='ghost'
                 colorScheme="pink"
+                h="49px"
             />
 
-            <Input placeholder='Type a comment' size='md' variant="ghost" />
+            <Input placeholder='Type a comment' value={text} onChange={e => setText(e.target.value)} size='md' variant="ghost" h="49px" />
+            <IconButton
+                icon={
+                    <Icon as={HiOutlinePaperAirplane} />}
+                aria-label='Add attachment'
+                variant='ghost'
+                colorScheme="blue"
+                h="49px"
+                onClick={handleReply}
+            />
 
         </Flex>
     )

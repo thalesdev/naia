@@ -1,29 +1,161 @@
 import { Flex } from "@chakra-ui/react"
 import Head from "next/head"
-import { Header, Message, MessageCardsInfo, ReplyBox } from "../../components/chat"
+import { useRouter } from "next/router"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Header, Message, MessageCardsInfo, MessageProps, ReplyBox } from "../../components/chat"
+import useLocalStorage from "../../hooks/useLocalStorage"
+
+interface IMessage extends MessageProps {
+    metaResponse?: IMessage
+    storeIn?: string
+}
+
+async function getCards(dataset: Record<string, string>, callback: (iata: string) => void): Promise<MessageCardsInfo> {
+    // todo: im future, use machine learning to get the best cards
+    // for now, just get the first 3 selected for us
+    // this would be used if inspiration api was catching 
+    // try {
+    //     const { lat, lng } = await new Promise<{ lat: Number, lng: Number }>((resolve, reject) => {
+    //         navigator.geolocation.getCurrentPosition((position) => {
+    //             let lat = position.coords.latitude;
+    //             let lng = position.coords.longitude;
+    //             resolve({ lat, lng })
+    //         }, err => reject(err));
+    //     })
+
+    //     const aiports = (await fetch(`/api/airport?lat=${lat}&lng=${lng}`).then(res => {
+    //         return res.json() as Promise<NearestAirportResponse>
+    //     })).data.map(airport => airport.iataCode);
+
+    // } catch {
+    //     console.info("Could not get user location")
+    // }
+    // const places = getFlyArrayByInspiration(airports)
+    // const filteredPlaces = filerPlacesByDataset(places, dataset) // IA operation, like KNN filter based
+
+
+    return {
+        cards: [
+            {
+                title: "Melbourne",
+                image: "https://www.melbourne.vic.gov.au/SiteCollectionImages/budget-2022-23-400.jpg",
+                subtitle: "Melbourne, Australia",
+                rating: 4.6,
+                onClick: () => callback("MEL")
+            },
+            {
+                title: "Sydney",
+                image: "https://www.sydney.com/sites/sydney/files/styles/portrait_768x1382/public/2022-11/181173%20-%20Sydney%27s%20Open%20for%20Lunch%20-%20George%20Street%20-%20Sydney%20CBD%20-%20DNSW%20mobile%20opt%202.webp?h=de33619a&itok=ACfgew59",
+                subtitle: "Sydney, Australia",
+                rating: 4.5,
+                onClick: () => callback("SYD")
+            },
+            {
+                title: "Osaka",
+                image: "https://res-4.cloudinary.com/jnto/image/upload/w_750,h_1100,c_fill,f_auto,fl_lossy,q_auto/v1516490612/osaka/Osaka829_1",
+                subtitle: "Osaka, Japan",
+                rating: 4.4,
+                onClick: () => callback("OSA")
+            }
+
+        ]
+    }
+}
+
+const dataset: Record<string, string> = {}
+
 
 export const ChatView: React.FC = () => {
 
-    const cardSample: MessageCardsInfo = {
-        cards: [{
-            image: 'https://1.bp.blogspot.com/-zUW09eaRpRE/XlQKkl-59II/AAAAAAAACi8/FDUsw-L4oOoMuDFxxgWkaZNP91iA7vSwQCKgBGAsYHg/s1600/sunamganj.jpg',
-            title: 'Niladri Reservoir',
-            subtitle: 'Tekergat, Sunamgnj',
-            subtitleIcon: null,
-            rating: 4.7,
-            onClick: () => { alert("You clicked on me!") }
+    const router = useRouter()
+    const [cursor, setCursor] = useState(-1)
+    const [replied, setReplied] = useState(false)
+    const [_, setUserPreferences] = useLocalStorage("preferencies", dataset)
+
+    const [messages, setMessages] = useState<IMessage[]>([
+        {
+            time: new Date(),
+            message: "Prazer! Meu nome é Naia, qual o seu nome?",
+        }
+    ])
+
+    const naiaMessageQueue: IMessage[] = [
+        {
+            message: "Me conta, o que você curte?",
+            metaResponse: {
+                isOwn: true,
+                replyOptions: {
+                    0: "Sofisticação",
+                    1: "Simplicidade",
+                    2: "Selva",
+                    3: "Luxo",
+                    4: "Diversão",
+                },
+                onReply: (option) => {
+                    dataset["likely"] = option
+                    nextCursor()
+                }
+
+            }
+        },
+        {
+            message: "Já tem planos para viajar?",
+            metaResponse: {
+                isOwn: true,
+                replyOptions: {
+                    0: "Sim",
+                    1: "Não",
+                },
+                onReply: (option) => {
+                    dataset["travel_plan"] = option
+                    nextCursor()
+                }
+            }
         }, {
-            image: 'https://cdn.nativeindonesia.com/foto/waduk-darma-kuningan/view-terkini-waduk-darma.jpg',
-            title: 'Darma Reservoir',
-            subtitle: 'Darma, Kuningan',
-            rating: 4.9,
-            subtitleIcon: null,
-            onClick: () => { alert("You clicked on me!") }
+            message: "Quantos anos você tem?",
+            storeIn: "age"
+        }, {
+            message: "Qual a sua profissão?",
+            storeIn: "profession"
+        },
+        {
+            message: "Olha só as melhores  recomendações de lugarc que eu encontrei para você!",
+            metaResponse: {
+                cards: () => getCards(dataset, (place) => {
+                    router.push(`/place-detail/${place}`)
+                    setUserPreferences(dataset)
+                })
+            }
+        }
+    ]
 
-        }],
-        onMore: () => { }
-    }
+    const nextCursor = () => setCursor(c => c + 1)
+    const handleReply = useCallback((data: string) => {
+        const lastMessage = messages[messages.length - 1]
+        setReplied(true)
+        nextCursor()
+        setMessages(msg => [...msg, {
+            isOwn: true,
+            message: data,
+            time: new Date()
+        }])
+        if (lastMessage.storeIn) {
+            dataset[lastMessage.storeIn] = data
+        }
+    }, [messages])
 
+    useEffect(() => {
+        if (cursor >= 0) {
+            const messageTop = naiaMessageQueue[cursor]
+            if (messageTop) {
+                const { metaResponse, ...message } = messageTop
+                setMessages(msg => metaResponse ?
+                    [...msg, message, metaResponse]
+                    : [...msg, message])
+                setReplied(false)
+            }
+        }
+    }, [cursor])
 
     return (
         <>
@@ -39,26 +171,11 @@ export const ChatView: React.FC = () => {
                     direction="column"
                     overflowY={"auto"}
                 >
-                    <Message time={new Date()} message="Prazer! Meu nome é Naia, qual o seu nome?" />
-                    <Message time={new Date()} message="Meu nome é *Luana Carolina*" isOwn />
-                    <Message time={new Date()} message="Me conta, o que você curte?" />
-                    <Message time={new Date()} isOwn replyOptions={{
-                        "x-1": "Sofisticação",
-                        "x-2": "Simplicidade",
-                        "x-3": "Selva",
-                        "x-4": "Luxo",
-                        "x-5": "Diversão",
-                    }} />
-                    <Message time={new Date()} message="Já tem planos para viajar?" />
-                    <Message time={new Date()} isOwn replyOptions={{
-                        "x-1": "Sim",
-                        "x-2": "Não",
-                    }} />
-                    <Message time={new Date()} message="Olha só as melhores  recomendações de viagem que eu encontrei para você!" />
-                    <Message cards={cardSample} />
-
+                    {messages.map((message, index) => (
+                        <Message key={index} {...message} time={message.message && !message.time ? new Date() : message.time} />
+                    ))}
                 </Flex>
-                <ReplyBox />
+                <ReplyBox onReply={handleReply} />
             </Flex>
         </>
     )
