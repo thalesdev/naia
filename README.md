@@ -3,7 +3,7 @@
     <img src=".github/naia.jpeg" alt="Naia" />
 </p>
 
-Oi, sou a [Naia](https://main.d8tjyohy7nc8r.amplifyapp.com/) project desenvolvido utilizando [`next.js`](https://github.com/vercel/next.js) e api's da [`amadeus`](https://developers.amadeus.com/).
+Oi, sou a [Naia](https://main.d8tjyohy7nc8r.amplifyapp.com/), projeto desenvolvido utilizando [`next.js`](https://github.com/vercel/next.js) e api's da [`amadeus`](https://developers.amadeus.com/).
 
 
 ## Sobre
@@ -27,7 +27,7 @@ Caso você prefira, pode testar utilizando o ambiente rodando com amplify:
 
 - [Ambiente Desenvolvimento](https://main.d8tjyohy7nc8r.amplifyapp.com/)
 
-## Stack Tecnologias
+## Stack de Tecnologias
 
 - Amadeus Api For Developers `(Inspire, Search, Insights, Booking)`
 - Google Maps API `(Futuro)`
