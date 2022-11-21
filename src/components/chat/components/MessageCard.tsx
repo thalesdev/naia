@@ -17,7 +17,8 @@ export const MessageCard: React.FC<MessageCardProps> = ({ image, title, subtitle
             width="268px"
             h="384px"
             direction="column"
-            borderRadius="24px"
+            borderRadius="20px"
+            pt={4}
             bg="blue.500"
             color="white"
             align="center"
@@ -25,7 +26,7 @@ export const MessageCard: React.FC<MessageCardProps> = ({ image, title, subtitle
             onClick={() => onClick?.()}
         >
             {image && <Image src={image} alt={title} borderRadius="20px" width="240px" height="286px" />}
-            <Stack w="100%" px="18px" py="2">
+            <Stack w="100%" px="18px" py="4">
                 <Flex justify="space-between" align="center">
                     <Heading size='md'>{title}</Heading>
                     {rating && (

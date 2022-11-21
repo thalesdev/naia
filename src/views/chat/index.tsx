@@ -45,7 +45,7 @@ async function getCards(dataset: Record<string, string>, callback: (iata: string
             },
             {
                 title: "Sydney",
-                image: "https://www.sydney.com/sites/sydney/files/styles/portrait_768x1382/public/2022-11/181173%20-%20Sydney%27s%20Open%20for%20Lunch%20-%20George%20Street%20-%20Sydney%20CBD%20-%20DNSW%20mobile%20opt%202.webp?h=de33619a&itok=ACfgew59",
+                image: "https://www.viajenaviagem.com/wp-content/uploads/2016/02/sydney-intro-opera-1920x640-1.jpg",
                 subtitle: "Sydney, Australia",
                 rating: 4.5,
                 onClick: () => callback("SYD")
@@ -120,7 +120,7 @@ export const ChatView: React.FC = () => {
             storeIn: "profession"
         },
         {
-            message: "Olha só as melhores  recomendações de lugarc que eu encontrei para você!",
+            message: "Olha só as melhores  recomendações de lugar que eu encontrei para você!",
             metaResponse: {
                 cards: () => getCards(dataset, (place) => {
                     router.push(`/place-detail/${place}`)
