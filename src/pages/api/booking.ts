@@ -30,14 +30,13 @@ export default async function handler(
                 error: "Missing body"
             })
         }
-        const offers = JSON.parse(req.body)?.offers || []
+        const offers = req.body?.offers || []
         if (offers.length === 0) {
             return res.status(400).json({
                 error: "Missing offers"
             })
         }
         try {
-
             const pricedOffer = await amadeus.shopping.flightOffers.pricing.post(
                 JSON.stringify({
                     "data": {
@@ -48,6 +47,7 @@ export default async function handler(
                     }
                 })
             )
+            // Create random booking reference
             const results = await amadeus.booking.flightOrders.post(
                 JSON.stringify({
                     'data': {
@@ -88,7 +88,6 @@ export default async function handler(
 
             res.status(200).json({ ...(results.result ?? {}) })
         } catch (err) {
-            console.log("error2:", err)
             res.status(500).json({ error: "Internal Server Error" })
         }
     }

@@ -7,6 +7,7 @@ import { GoChevronRight } from "react-icons/go"
 import { MdOutlinePlace } from "react-icons/md"
 import { useRouter } from "next/router";
 import Menu from "../components/menu";
+import Head from "next/head";
 
 const Main: React.FC = () => {
 
@@ -25,6 +26,9 @@ const Main: React.FC = () => {
 
     return (
         <>
+            <Head>
+                <title>Travel Planner</title>
+            </Head>
             <Flex
                 w="100vw"
                 h="calc(100vh - 50px)"

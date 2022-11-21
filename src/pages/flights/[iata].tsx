@@ -10,6 +10,7 @@ import { useToast } from '@chakra-ui/react'
 import useLocalStorage from "../../hooks/useLocalStorage";
 import Menu from "../../components/menu";
 import { TravelItenary } from "../../contracts/TravelItinerary";
+import axios from "axios"
 
 interface FlightsProps {
 }
@@ -35,17 +36,14 @@ const Flights: React.FC<FlightsProps> = () => {
             const travelTarget = travels.find((t: any) => t.iataCode === iata)
             setBooking(true)
             try {
-                const book = await fetch("/api/booking", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        offers: [flightOffer]
-                    })
-                }).then(res => res.json())
-                if (book?.error) { throw new Error() }
-                setBookings([...bookings, book.data])
+                const { data: bookingData } = await axios.post("/api/booking", {
+                    offers: [flightOffer]
+                })
+                if (bookingData?.data?.error) { throw new Error() }
+                console.log(bookingData)
+                setBookings([...bookings, bookingData?.data])
                 if (travelTarget) {
-                    console.log(book)
-                    setTravels(travels.map((t: TravelItenary) => t.iataCode === iata ? { ...t, booked: true, bookId: book.data.id } : t))
+                    setTravels(travels.map((t: TravelItenary) => t.iataCode === iata ? { ...t, booked: true, bookId: bookingData?.data?.id } : t))
                 }
                 onClose()
                 router.push("/main")
@@ -74,10 +72,8 @@ const Flights: React.FC<FlightsProps> = () => {
         if (!flights?.length && !loading && iata) {
             setLoading(true)
             const load = async () => {
-                const flights = await fetch(`http://localhost:3000/api/flights?iataCode=${iata}&date=2023-01-01`).then(res => {
-                    return res.json()
-                })
-                setFlights(flights.data)
+                const { data: flightsData } = await axios.get(`/api/flights?iataCode=${iata}&date=2023-01-01`)
+                setFlights(flightsData?.data)
                 setLoading(false)
             }
             load()
