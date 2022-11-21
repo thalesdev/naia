@@ -19,7 +19,6 @@ export default async function handler(
                 const results = await amadeus.shopping.flightDestinations.get({
                     origin: iataCode
                 })
-                console.log(results?.result)
                 return results?.result
             } catch (err) {
                 return null

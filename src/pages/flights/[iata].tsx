@@ -40,7 +40,6 @@ const Flights: React.FC<FlightsProps> = () => {
                     offers: [flightOffer]
                 })
                 if (bookingData?.data?.error) { throw new Error() }
-                console.log(bookingData)
                 setBookings([...bookings, bookingData?.data])
                 if (travelTarget) {
                     setTravels(travels.map((t: TravelItenary) => t.iataCode === iata ? { ...t, booked: true, bookId: bookingData?.data?.id } : t))

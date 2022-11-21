@@ -22,8 +22,6 @@ export default async function handler(
         }
         const { iataCode, date } = req.query
 
-        console.log("datona", new Date().toISOString().split('T')[0])
-
         try {
             const results = await amadeus.shopping.flightOffersSearch.get({
                 originLocationCode: 'GRU',

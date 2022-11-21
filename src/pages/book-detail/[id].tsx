@@ -18,7 +18,6 @@ const PlaceDetail: React.FC<BookDetailProps> = () => {
         return bookings.find((b: any) => b.id === encodeURIComponent(id as any))
     }, [bookings])
 
-    console.log(bookings, booking, id)
 
     return (
         <>

@@ -1,7 +1,7 @@
 import { Flex } from "@chakra-ui/react"
 import Head from "next/head"
 import { useRouter } from "next/router"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Header, Message, MessageCardsInfo, MessageProps, ReplyBox } from "../../components/chat"
 import useLocalStorage from "../../hooks/useLocalStorage"
 
@@ -71,6 +71,7 @@ export const ChatView: React.FC = () => {
     const [cursor, setCursor] = useState(-1)
     const [replied, setReplied] = useState(false)
     const [_, setUserPreferences] = useLocalStorage("preferencies", dataset)
+    const chatRef = useRef<any>(null)
 
     const [messages, setMessages] = useState<IMessage[]>([
         {
@@ -157,6 +158,15 @@ export const ChatView: React.FC = () => {
         }
     }, [cursor])
 
+    useLayoutEffect(() => {
+        if (messages && messages.length > 0 && chatRef?.current) {
+            chatRef?.current?.scrollTo({
+                top: chatRef.current.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+    }, [messages, chatRef])
+
     return (
         <>
             <Head>
@@ -170,6 +180,7 @@ export const ChatView: React.FC = () => {
                     h="calc(100% - 49px - 87px)"
                     direction="column"
                     overflowY={"auto"}
+                    ref={chatRef}
                 >
                     {messages.map((message, index) => (
                         <Message key={index} {...message} time={message.message && !message.time ? new Date() : message.time} />
