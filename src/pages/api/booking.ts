@@ -1,10 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { amadeus } from '../../config/amadeus'
+import NextCors from 'nextjs-cors';
+
+
+function makeFakeDoc(length: Number) {
+    var result = '';
+    var characters = '0123456789';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<any>
 ) {
+    await NextCors(req, res, {
+        // Options
+        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+        origin: '*',
+        optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+    });
+
     if (req.method === 'POST') {
         if (typeof req?.body === "undefined") {
             return res.status(400).json({
@@ -43,11 +62,11 @@ export default async function handler(
                             },
                             "gender": "MALE",
                             "contact": {
-                                "emailAddress": "jhon.doe@test.com",
+                                "emailAddress": `jhon.doe_${makeFakeDoc(2)}@test.com`,
                                 "phones": [{
                                     "deviceType": "MOBILE",
                                     "countryCallingCode": "34",
-                                    "number": "480080076"
+                                    "number": makeFakeDoc(9)
                                 }]
                             },
                             "documents": [{
@@ -55,7 +74,7 @@ export default async function handler(
                                 "birthPlace": "Madrid",
                                 "issuanceLocation": "Madrid",
                                 "issuanceDate": "2015-04-14",
-                                "number": "00000000",
+                                "number": makeFakeDoc(8),
                                 "expiryDate": "2025-04-14",
                                 "issuanceCountry": "ES",
                                 "validityCountry": "ES",
